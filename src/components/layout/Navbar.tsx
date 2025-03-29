@@ -11,17 +11,19 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { Link } from "react-router-dom";
-import { useStorage } from "@/contexts/StorageContext";
+import { Link, useNavigate } from "react-router-dom";
+import { useApi } from "@/contexts/ApiContext";
 import { toast } from "sonner";
 
 const Navbar = () => {
   const isMobile = useIsMobile();
-  const { currentUser, logout } = useStorage();
+  const { currentUser, logout } = useApi();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     toast.success("Logged out successfully");
+    navigate("/login");
   };
 
   return (
