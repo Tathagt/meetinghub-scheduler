@@ -18,56 +18,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
-
-// Mock data for user's bookings
-const myBookings = [
-  {
-    id: 1,
-    tableName: "Conference Room A",
-    date: "2023-09-15",
-    time: "14:00 - 16:00",
-    clubName: "Tech Club",
-    purpose: "Weekly Meeting",
-    status: "confirmed",
-    location: "Main Building, Floor 1",
-  },
-  {
-    id: 2,
-    tableName: "Meeting Room B",
-    date: "2023-09-16",
-    time: "10:00 - 11:30",
-    clubName: "Tech Club",
-    purpose: "Project Discussion",
-    status: "pending",
-    location: "Main Building, Floor 2",
-  },
-  {
-    id: 3,
-    tableName: "Study Hall C",
-    date: "2023-09-17",
-    time: "15:00 - 17:00",
-    clubName: "Tech Club",
-    purpose: "Competition Prep",
-    status: "confirmed",
-    location: "Library Building, Floor 3",
-  },
-  {
-    id: 4,
-    tableName: "Discussion Room D",
-    date: "2023-09-18",
-    time: "13:00 - 14:30",
-    clubName: "Tech Club",
-    purpose: "Portfolio Review",
-    status: "cancelled",
-    location: "Student Center, Floor 1",
-  },
-];
+import { useStorage } from "@/contexts/StorageContext";
 
 const MyBookingsPage = () => {
+  const { userBookings, cancelBooking, currentUser } = useStorage();
+  
+  const upcomingBookings = userBookings.filter(booking => booking.status !== "cancelled");
+  const cancelledBookings = userBookings.filter(booking => booking.status === "cancelled");
+  
   const handleCancelBooking = (id: number) => {
-    toast.info("Booking cancellation initiated", {
-      description: "Your booking has been marked for cancellation.",
-    });
+    const result = cancelBooking(id);
+    if (result) {
+      toast.info("Booking cancellation successful", {
+        description: "Your booking has been cancelled.",
+      });
+    } else {
+      toast.error("Failed to cancel booking", {
+        description: "Please try again later.",
+      });
+    }
   };
 
   return (
@@ -91,9 +60,8 @@ const MyBookingsPage = () => {
 
         <TabsContent value="upcoming" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {myBookings
-              .filter(booking => booking.status !== "cancelled")
-              .map((booking) => (
+            {upcomingBookings.length > 0 ? (
+              upcomingBookings.map((booking) => (
                 <Card key={booking.id} className="overflow-hidden">
                   <div className={`h-1 ${
                     booking.status === "confirmed" ? "bg-green-500" : "bg-amber-500"
@@ -173,7 +141,15 @@ const MyBookingsPage = () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              ))
+            ) : (
+              <div className="col-span-full text-center py-10">
+                <p className="text-muted-foreground">You don't have any upcoming bookings.</p>
+                <Button className="mt-4" asChild>
+                  <Link to="/bookings/new">Book a Table</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </TabsContent>
         
@@ -185,9 +161,8 @@ const MyBookingsPage = () => {
         
         <TabsContent value="cancelled">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {myBookings
-              .filter(booking => booking.status === "cancelled")
-              .map((booking) => (
+            {cancelledBookings.length > 0 ? (
+              cancelledBookings.map((booking) => (
                 <Card key={booking.id} className="overflow-hidden opacity-75">
                   <div className="h-1 bg-red-500" />
                   <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
@@ -223,7 +198,12 @@ const MyBookingsPage = () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              ))
+            ) : (
+              <div className="col-span-full text-center py-10">
+                <p className="text-muted-foreground">You don't have any cancelled bookings.</p>
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>

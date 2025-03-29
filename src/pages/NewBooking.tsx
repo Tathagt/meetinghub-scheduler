@@ -26,30 +26,11 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-
-// Mock data for tables
-const tables = [
-  { id: 1, name: "Conference Room A", capacity: 12 },
-  { id: 2, name: "Meeting Room B", capacity: 8 },
-  { id: 3, name: "Study Hall C", capacity: 20 },
-  { id: 4, name: "Discussion Room D", capacity: 6 },
-  { id: 5, name: "Collaboration Space E", capacity: 15 },
-  { id: 6, name: "Seminar Room F", capacity: 30 },
-];
-
-// Mock data for clubs
-const clubs = [
-  { id: 1, name: "Tech Club" },
-  { id: 2, name: "Art Society" },
-  { id: 3, name: "Debate Club" },
-  { id: 4, name: "Photography Club" },
-  { id: 5, name: "Robotics Team" },
-  { id: 6, name: "Business Club" },
-];
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useStorage } from "@/contexts/StorageContext";
 
 // Time slots
 const timeSlots = [
@@ -68,27 +49,88 @@ const timeSlots = [
 const NewBookingPage = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const rebookId = searchParams.get('rebook');
+  
+  const { tables, clubs, addBooking, getBookingById, currentUser } = useStorage();
   
   const form = useForm({
     defaultValues: {
-      table: "",
-      club: "",
+      tableId: "",
+      clubId: "",
       time: "",
       attendees: "",
       purpose: "",
     },
   });
+  
+  // If we're rebooking, get the old booking details
+  useEffect(() => {
+    if (rebookId) {
+      const booking = getBookingById(parseInt(rebookId));
+      if (booking) {
+        form.reset({
+          tableId: booking.tableId.toString(),
+          clubId: booking.clubId.toString(),
+          time: booking.time,
+          attendees: booking.attendees.toString(),
+          purpose: booking.purpose,
+        });
+        
+        // Set the date
+        if (booking.date) {
+          setDate(new Date(booking.date));
+        }
+      }
+    }
+  }, [rebookId, getBookingById, form]);
 
   const onSubmit = (data: any) => {
-    console.log({
-      ...data,
-      date: date ? format(date, "yyyy-MM-dd") : "",
-    });
-
-    toast.success("Booking created successfully!");
-    setTimeout(() => {
-      navigate("/bookings");
-    }, 1500);
+    if (!currentUser) {
+      toast.error("You must be logged in to create a booking");
+      return;
+    }
+    
+    if (!date) {
+      toast.error("Please select a date for your booking");
+      return;
+    }
+    
+    const tableId = parseInt(data.tableId);
+    const clubId = parseInt(data.clubId);
+    
+    const selectedTable = tables.find(t => t.id === tableId);
+    const selectedClub = clubs.find(c => c.id === clubId);
+    
+    if (!selectedTable || !selectedClub) {
+      toast.error("Invalid table or club selection");
+      return;
+    }
+    
+    const newBooking = {
+      tableId,
+      tableName: selectedTable.name,
+      date: format(date, "yyyy-MM-dd"),
+      time: data.time,
+      clubId,
+      clubName: selectedClub.name,
+      purpose: data.purpose,
+      status: "pending" as const,
+      attendees: parseInt(data.attendees),
+      location: selectedTable.location,
+      userId: currentUser.id,
+    };
+    
+    const result = addBooking(newBooking);
+    
+    if (result) {
+      toast.success("Booking created successfully!");
+      setTimeout(() => {
+        navigate("/my-bookings");
+      }, 1500);
+    } else {
+      toast.error("Failed to create booking");
+    }
   };
 
   return (
@@ -110,7 +152,7 @@ const NewBookingPage = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="table"
+                name="tableId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Select Table</FormLabel>
@@ -141,7 +183,7 @@ const NewBookingPage = () => {
 
               <FormField
                 control={form.control}
-                name="club"
+                name="clubId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Club</FormLabel>

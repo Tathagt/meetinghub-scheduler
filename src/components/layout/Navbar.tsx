@@ -11,9 +11,18 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { Link } from "react-router-dom";
+import { useStorage } from "@/contexts/StorageContext";
+import { toast } from "sonner";
 
 const Navbar = () => {
   const isMobile = useIsMobile();
+  const { currentUser, logout } = useStorage();
+
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out successfully");
+  };
 
   return (
     <header className="bg-white border-b border-border py-3 px-4 flex items-center justify-between">
@@ -43,18 +52,27 @@ const Navbar = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              {currentUser ? currentUser.name : "My Account"}
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+            <DropdownMenuItem className="cursor-pointer" asChild>
+              <Link to="/profile">
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              <Calendar className="mr-2 h-4 w-4" />
-              <span>My Bookings</span>
+            <DropdownMenuItem className="cursor-pointer" asChild>
+              <Link to="/my-bookings">
+                <Calendar className="mr-2 h-4 w-4" />
+                <span>My Bookings</span>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer text-destructive">
+            <DropdownMenuItem 
+              className="cursor-pointer text-destructive"
+              onClick={handleLogout}
+            >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
