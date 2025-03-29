@@ -1,4 +1,3 @@
-
 import { createContext, useContext, ReactNode, useState } from 'react';
 import { tableApi, clubApi, bookingApi, userApi } from '@/lib/api';
 import { Table, Club, Booking, User } from '@/lib/types';
@@ -30,6 +29,7 @@ type ApiContextType = {
   updateBooking: (booking: Booking) => Promise<Booking | undefined>;
   cancelBooking: (id: number) => Promise<Booking | undefined>;
   deleteBooking: (id: number) => Promise<boolean>;
+  confirmBooking: (id: number) => Promise<Booking | undefined>;
   
   // Users
   fetchUsers: () => Promise<User[]>;
@@ -296,6 +296,21 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
+  const confirmBooking = async (id: number) => {
+    setIsLoading(true);
+    try {
+      const confirmedBooking = await bookingApi.confirm(id);
+      toast.success('Booking confirmed successfully');
+      return confirmedBooking;
+    } catch (error) {
+      console.error(`Error confirming booking ${id}:`, error);
+      toast.error('Failed to confirm booking');
+      return undefined;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   // User operations
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -369,6 +384,7 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     updateBooking,
     cancelBooking,
     deleteBooking,
+    confirmBooking,
     
     fetchUsers,
     getUserById,

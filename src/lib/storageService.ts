@@ -1,4 +1,3 @@
-
 import { Table, Club, Booking, User } from './types';
 
 // Storage keys
@@ -331,6 +330,21 @@ export const bookingService = {
           });
         }
       }
+      
+      return update<Booking>(BOOKINGS_KEY, updatedBooking);
+    }
+    
+    return null;
+  },
+  confirmBooking: (id: number) => {
+    const booking = bookingService.getById(id);
+    
+    if (booking) {
+      // Update status to confirmed
+      const updatedBooking = {
+        ...booking,
+        status: 'confirmed' as const
+      };
       
       return update<Booking>(BOOKINGS_KEY, updatedBooking);
     }

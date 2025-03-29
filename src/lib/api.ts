@@ -102,6 +102,11 @@ export const bookingApi = {
     return response.data;
   },
   
+  confirm: async (id: number): Promise<Booking> => {
+    const response = await api.put(`/bookings/${id}/confirm`);
+    return response.data;
+  },
+  
   delete: async (id: number): Promise<void> => {
     await api.delete(`/bookings/${id}`);
   },
@@ -144,7 +149,7 @@ export const userApi = {
       if (window.location.hostname !== 'localhost') {
         console.log('Using mock login since API server might not be available');
         // Find a user with matching email from the demo data
-        const mockUsers = [
+        const mockUsers: User[] = [
           {
             id: "user1",
             name: "John Doe",

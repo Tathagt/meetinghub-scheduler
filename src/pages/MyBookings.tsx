@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Clock, Info, MapPin, MoreVertical, Trash, Edit } from "lucide-react";
+import { CalendarDays, Clock, Info, MapPin, MoreVertical, Trash, Edit, CheckCircle } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -21,7 +21,7 @@ import { Link } from "react-router-dom";
 import { useStorage } from "@/contexts/StorageContext";
 
 const MyBookingsPage = () => {
-  const { userBookings, cancelBooking, currentUser } = useStorage();
+  const { userBookings, cancelBooking, confirmBooking, currentUser } = useStorage();
   
   const upcomingBookings = userBookings.filter(booking => booking.status !== "cancelled");
   const cancelledBookings = userBookings.filter(booking => booking.status === "cancelled");
@@ -34,6 +34,19 @@ const MyBookingsPage = () => {
       });
     } else {
       toast.error("Failed to cancel booking", {
+        description: "Please try again later.",
+      });
+    }
+  };
+  
+  const handleConfirmBooking = (id: number) => {
+    const result = confirmBooking(id);
+    if (result) {
+      toast.success("Booking confirmation successful", {
+        description: "Your booking has been confirmed.",
+      });
+    } else {
+      toast.error("Failed to confirm booking", {
         description: "Please try again later.",
       });
     }
@@ -94,6 +107,15 @@ const MyBookingsPage = () => {
                               <span>Edit Booking</span>
                             </Link>
                           </DropdownMenuItem>
+                          {booking.status === "pending" && (
+                            <DropdownMenuItem 
+                              className="cursor-pointer text-green-600 focus:text-green-600"
+                              onClick={() => handleConfirmBooking(booking.id)}
+                            >
+                              <CheckCircle className="mr-2 h-4 w-4" />
+                              <span>Confirm Booking</span>
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem 
                             className="cursor-pointer text-destructive focus:text-destructive"
                             onClick={() => handleCancelBooking(booking.id)}
@@ -130,14 +152,26 @@ const MyBookingsPage = () => {
                       <Button size="sm" variant="outline" className="flex-1" asChild>
                         <Link to={`/bookings/${booking.id}`}>Details</Link>
                       </Button>
-                      <Button 
-                        size="sm" 
-                        variant="destructive" 
-                        className="flex-1"
-                        onClick={() => handleCancelBooking(booking.id)}
-                      >
-                        Cancel
-                      </Button>
+                      {booking.status === "pending" ? (
+                        <Button 
+                          size="sm" 
+                          variant="default" 
+                          className="flex-1"
+                          onClick={() => handleConfirmBooking(booking.id)}
+                        >
+                          <CheckCircle className="mr-1 h-4 w-4" />
+                          Confirm
+                        </Button>
+                      ) : (
+                        <Button 
+                          size="sm" 
+                          variant="destructive" 
+                          className="flex-1"
+                          onClick={() => handleCancelBooking(booking.id)}
+                        >
+                          Cancel
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
