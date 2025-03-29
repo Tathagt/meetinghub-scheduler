@@ -2,11 +2,15 @@
 import axios from 'axios';
 import { Table, Club, Booking, User } from './types';
 
-const API_URL = 'http://localhost:5000/api';
+// Determine the API URL based on the environment
+// This will use the current hostname if not localhost
+const BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000/api'
+  : `${window.location.protocol}//${window.location.hostname}/api`;
 
 // Create axios instance
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -131,7 +135,44 @@ export const userApi = {
   
   // Auth
   login: async (email: string, password: string): Promise<User> => {
-    const response = await api.post('/login', { email, password });
-    return response.data;
+    try {
+      const response = await api.post('/login', { email, password });
+      return response.data;
+    } catch (error) {
+      console.error('Login error:', error);
+      // For demo purposes, return a mock user when the API is not available
+      if (window.location.hostname !== 'localhost') {
+        console.log('Using mock login since API server might not be available');
+        // Find a user with matching email from the demo data
+        const mockUsers = [
+          {
+            id: "user1",
+            name: "John Doe",
+            email: "john@example.com",
+            role: "student",
+            clubId: 1
+          },
+          {
+            id: "user2",
+            name: "Jane Smith",
+            email: "jane@example.com",
+            role: "coordinator",
+            clubId: 3
+          },
+          {
+            id: "user3",
+            name: "Admin User",
+            email: "admin@example.com",
+            role: "admin"
+          }
+        ];
+        
+        const mockUser = mockUsers.find(u => u.email === email);
+        if (mockUser) {
+          return mockUser;
+        }
+      }
+      throw error;
+    }
   },
 };

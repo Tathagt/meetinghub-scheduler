@@ -6,19 +6,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("john@example.com");
   const [password, setPassword] = useState("password");
+  const [error, setError] = useState<string | null>(null);
   const { login, isLoading } = useApi();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const user = await login(email, password);
-    if (user) {
-      navigate("/");
+    setError(null);
+    
+    try {
+      const user = await login(email, password);
+      if (user) {
+        navigate("/");
+      } else {
+        setError("Invalid credentials. Please try again.");
+      }
+    } catch (err) {
+      setError("Login failed. Please check your credentials or try again later.");
+      console.error("Login error:", err);
     }
   };
 
@@ -33,6 +44,13 @@ const LoginPage = () => {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="ml-2">{error}</AlertDescription>
+              </Alert>
+            )}
+            
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input 
