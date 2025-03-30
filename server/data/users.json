@@ -1,0 +1,22 @@
+[
+  {
+    "id": "user1",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "student",
+    "clubId": 1
+  },
+  {
+    "id": "user2",
+    "name": "Jane Smith",
+    "email": "jane@example.com",
+    "role": "coordinator",
+    "clubId": 3
+  },
+  {
+    "id": "user3",
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "role": "admin"
+  }
+]

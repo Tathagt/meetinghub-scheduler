@@ -1,0 +1,78 @@
+[
+  {
+    "id": 1,
+    "name": "Conference Room A",
+    "capacity": 12,
+    "features": [
+      "Projector",
+      "Whiteboard",
+      "Video Conference"
+    ],
+    "location": "Main Building, Floor 1",
+    "availableSlots": 5,
+    "totalSlots": 8
+  },
+  {
+    "id": 2,
+    "name": "Meeting Room B",
+    "capacity": 8,
+    "features": [
+      "Whiteboard",
+      "Monitor"
+    ],
+    "location": "Main Building, Floor 2",
+    "availableSlots": 0,
+    "totalSlots": 8
+  },
+  {
+    "id": 3,
+    "name": "Study Hall C",
+    "capacity": 20,
+    "features": [
+      "Projector",
+      "Large Space",
+      "Audio System"
+    ],
+    "location": "Library Building, Floor 3",
+    "availableSlots": 3,
+    "totalSlots": 8
+  },
+  {
+    "id": 4,
+    "name": "Discussion Room D",
+    "capacity": 6,
+    "features": [
+      "Whiteboard",
+      "Cozy Space"
+    ],
+    "location": "Student Center, Floor 1",
+    "availableSlots": 7,
+    "totalSlots": 8
+  },
+  {
+    "id": 5,
+    "name": "Collaboration Space E",
+    "capacity": 15,
+    "features": [
+      "Modular Tables",
+      "Wall Monitors",
+      "Whiteboard Wall"
+    ],
+    "location": "Innovation Hub, Floor 2",
+    "availableSlots": 2,
+    "totalSlots": 8
+  },
+  {
+    "id": 6,
+    "name": "Seminar Room F",
+    "capacity": 30,
+    "features": [
+      "Projector",
+      "Podium",
+      "Audio System"
+    ],
+    "location": "Academic Building, Floor 3",
+    "availableSlots": 4,
+    "totalSlots": 8
+  }
+]

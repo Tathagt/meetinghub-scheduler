@@ -1,12 +1,16 @@
-
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const connectDB = require('./config/db');
+const User = require('./models/User');
 
 // Initialize app
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Connect to MongoDB
+connectDB();
 
 // Middleware
 app.use(cors());
@@ -678,22 +682,72 @@ app.delete('/api/users/:id', (req, res) => {
 });
 
 // Login endpoint
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const users = readData(USERS_FILE);
     
-    // In a real app, you would verify the password hash
-    // Here we're just checking if the email exists
-    const user = users.find(u => u.email === email);
+    // Find user by email
+    const user = await User.findOne({ email });
     
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    res.json(user);
+    // Check password
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    // Return user without password
+    const userResponse = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      clubId: user.clubId
+    };
+    
+    res.json(userResponse);
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Register endpoint
+app.post('/api/register', async (req, res) => {
+  try {
+    const { name, email, password, role, clubId } = req.body;
+    
+    // Check if user already exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+    
+    // Create new user
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role,
+      clubId
+    });
+    
+    // Return user without password
+    const userResponse = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      clubId: user.clubId
+    };
+    
+    res.status(201).json(userResponse);
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Registration failed' });
   }
 });
 

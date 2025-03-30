@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Tech Club"
+  },
+  {
+    "id": 2,
+    "name": "Art Society"
+  },
+  {
+    "id": 3,
+    "name": "Debate Club"
+  },
+  {
+    "id": 4,
+    "name": "Photography Club"
+  },
+  {
+    "id": 5,
+    "name": "Robotics Team"
+  },
+  {
+    "id": 6,
+    "name": "Business Club"
+  }
+]
