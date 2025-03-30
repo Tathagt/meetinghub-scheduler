@@ -23,7 +23,7 @@ export const tableApi = {
     return response.data;
   },
   
-  getById: async (id: number): Promise<Table> => {
+  getById: async (id: string): Promise<Table> => {
     const response = await api.get(`/tables/${id}`);
     return response.data;
   },
@@ -34,11 +34,11 @@ export const tableApi = {
   },
   
   update: async (table: Table): Promise<Table> => {
-    const response = await api.put(`/tables/${table.id}`, table);
+    const response = await api.put(`/tables/${table._id}`, table);
     return response.data;
   },
   
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: string): Promise<void> => {
     await api.delete(`/tables/${id}`);
   },
 };
@@ -50,7 +50,7 @@ export const clubApi = {
     return response.data;
   },
   
-  getById: async (id: number): Promise<Club> => {
+  getById: async (id: string): Promise<Club> => {
     const response = await api.get(`/clubs/${id}`);
     return response.data;
   },
@@ -61,11 +61,11 @@ export const clubApi = {
   },
   
   update: async (club: Club): Promise<Club> => {
-    const response = await api.put(`/clubs/${club.id}`, club);
+    const response = await api.put(`/clubs/${club._id}`, club);
     return response.data;
   },
   
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: string): Promise<void> => {
     await api.delete(`/clubs/${id}`);
   },
 };
@@ -77,7 +77,7 @@ export const bookingApi = {
     return response.data;
   },
   
-  getById: async (id: number): Promise<Booking> => {
+  getById: async (id: string): Promise<Booking> => {
     const response = await api.get(`/bookings/${id}`);
     return response.data;
   },
@@ -93,21 +93,21 @@ export const bookingApi = {
   },
   
   update: async (booking: Booking): Promise<Booking> => {
-    const response = await api.put(`/bookings/${booking.id}`, booking);
+    const response = await api.put(`/bookings/${booking._id}`, booking);
     return response.data;
   },
   
-  cancel: async (id: number): Promise<Booking> => {
+  cancel: async (id: string): Promise<Booking> => {
     const response = await api.put(`/bookings/${id}/cancel`);
     return response.data;
   },
   
-  confirm: async (id: number): Promise<Booking> => {
+  confirm: async (id: string): Promise<Booking> => {
     const response = await api.put(`/bookings/${id}/confirm`);
     return response.data;
   },
   
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: string): Promise<void> => {
     await api.delete(`/bookings/${id}`);
   },
 };
@@ -130,7 +130,7 @@ export const userApi = {
   },
   
   update: async (user: User): Promise<User> => {
-    const response = await api.put(`/users/${user.id}`, user);
+    const response = await api.put(`/users/${user._id}`, user);
     return response.data;
   },
   
@@ -151,21 +151,21 @@ export const userApi = {
         // Find a user with matching email from the demo data
         const mockUsers: User[] = [
           {
-            id: "user1",
+            _id: "user1",
             name: "John Doe",
             email: "john@example.com",
             role: "student",
             clubId: 1
           },
           {
-            id: "user2",
+            _id: "user2",
             name: "Jane Smith",
             email: "jane@example.com",
             role: "coordinator",
             clubId: 3
           },
           {
-            id: "user3",
+            _id: "user3",
             name: "Admin User",
             email: "admin@example.com",
             role: "admin"
