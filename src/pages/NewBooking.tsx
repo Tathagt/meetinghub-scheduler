@@ -1,4 +1,3 @@
-
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { 
@@ -64,7 +63,6 @@ const NewBookingPage = () => {
     },
   });
   
-  // If we're rebooking, get the old booking details
   useEffect(() => {
     if (rebookId) {
       const booking = getBookingById(parseInt(rebookId));
@@ -77,7 +75,6 @@ const NewBookingPage = () => {
           purpose: booking.purpose,
         });
         
-        // Set the date
         if (booking.date) {
           setDate(new Date(booking.date));
         }
@@ -99,8 +96,8 @@ const NewBookingPage = () => {
     const tableId = parseInt(data.tableId);
     const clubId = parseInt(data.clubId);
     
-    const selectedTable = tables.find(t => t.id === tableId);
-    const selectedClub = clubs.find(c => c.id === clubId);
+    const selectedTable = tables.find(t => (t.id === tableId || t._id === tableId.toString()));
+    const selectedClub = clubs.find(c => (c.id === clubId || c._id === clubId.toString()));
     
     if (!selectedTable || !selectedClub) {
       toast.error("Invalid table or club selection");
@@ -108,17 +105,17 @@ const NewBookingPage = () => {
     }
     
     const newBooking = {
-      tableId,
+      tableId: selectedTable._id || tableId.toString(),
       tableName: selectedTable.name,
       date: format(date, "yyyy-MM-dd"),
       time: data.time,
-      clubId,
+      clubId: selectedClub._id || clubId.toString(),
       clubName: selectedClub.name,
       purpose: data.purpose,
       status: "pending" as const,
       attendees: parseInt(data.attendees),
       location: selectedTable.location,
-      userId: currentUser.id,
+      userId: currentUser._id || currentUser.id || "",
     };
     
     const result = addBooking(newBooking);
@@ -167,7 +164,7 @@ const NewBookingPage = () => {
                       </FormControl>
                       <SelectContent>
                         {tables.map((table) => (
-                          <SelectItem key={table.id} value={table.id.toString()}>
+                          <SelectItem key={table._id || table.id} value={table.id?.toString() || table._id}>
                             {table.name} (Capacity: {table.capacity})
                           </SelectItem>
                         ))}
@@ -198,7 +195,7 @@ const NewBookingPage = () => {
                       </FormControl>
                       <SelectContent>
                         {clubs.map((club) => (
-                          <SelectItem key={club.id} value={club.id.toString()}>
+                          <SelectItem key={club._id || club.id} value={club.id?.toString() || club._id}>
                             {club.name}
                           </SelectItem>
                         ))}

@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,12 +19,12 @@ const Dashboard = () => {
   const todaysTables = tables.slice(0, 5).map(table => {
     // Check if this table has any bookings for today
     const isBooked = upcomingBookings.some(
-      booking => booking.tableId === table.id && booking.date === today
+      booking => booking.tableId === (table._id || table.id) && booking.date === today
     );
     
     // Check if this table has any pending bookings
     const isPending = upcomingBookings.some(
-      booking => booking.tableId === table.id && booking.date === today && booking.status === 'pending'
+      booking => booking.tableId === (table._id || table.id) && booking.date === today && booking.status === 'pending'
     );
     
     return {
@@ -95,7 +94,7 @@ const Dashboard = () => {
             <div className="space-y-4">
               {recentBookings.length > 0 ? (
                 recentBookings.map((booking) => (
-                  <div key={booking.id} className="booking-card flex items-center justify-between">
+                  <div key={booking._id || booking.id} className="booking-card flex items-center justify-between">
                     <div>
                       <h3 className="font-medium">{booking.tableName}</h3>
                       <div className="text-sm text-muted-foreground">{booking.clubName}</div>
@@ -133,7 +132,7 @@ const Dashboard = () => {
           <CardContent>
             <div className="space-y-2">
               {todaysTables.map((table) => (
-                <div key={table.id} className="flex items-center justify-between p-3 border border-border rounded-md">
+                <div key={table._id || table.id} className="flex items-center justify-between p-3 border border-border rounded-md">
                   <div className="flex items-center">
                     <div className={`w-3 h-3 rounded-full mr-2 ${
                       table.status === 'available' ? 'bg-green-500' : 

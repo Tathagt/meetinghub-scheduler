@@ -8,7 +8,7 @@ type StorageContextType = {
   // Tables
   tables: Table[];
   getTableById: (id: number) => Table | undefined;
-  addTable: (table: Omit<Table, 'id'>) => Table;
+  addTable: (table: Omit<Table, '_id'>) => Table;
   updateTable: (table: Table) => Table | null;
   deleteTable: (id: number) => boolean;
   availableTables: Table[];
@@ -17,17 +17,18 @@ type StorageContextType = {
   // Clubs
   clubs: Club[];
   getClubById: (id: number) => Club | undefined;
-  addClub: (club: Omit<Club, 'id'>) => Club;
+  addClub: (club: Omit<Club, '_id'>) => Club;
   updateClub: (club: Club) => Club | null;
   deleteClub: (id: number) => boolean;
   
   // Bookings
   bookings: Booking[];
   getBookingById: (id: number) => Booking | undefined;
-  addBooking: (booking: Omit<Booking, 'id'>) => Booking;
+  addBooking: (booking: Omit<Booking, '_id'>) => Booking;
   updateBooking: (booking: Booking) => Booking | null;
   deleteBooking: (id: number) => boolean;
   cancelBooking: (id: number) => Booking | null;
+  confirmBooking: (id: number) => Booking | null; // Added this function
   userBookings: Booking[];
   upcomingBookings: Booking[];
   pastBookings: Booking[];
@@ -75,7 +76,7 @@ export const StorageProvider = ({ children }: { children: ReactNode }) => {
   // Table operations
   const getTableById = (id: number) => tableService.getById(id);
   
-  const addTable = (table: Omit<Table, 'id'>) => {
+  const addTable = (table: Omit<Table, '_id'>) => {
     const newTable = tableService.add(table);
     refreshData();
     return newTable;
@@ -96,7 +97,7 @@ export const StorageProvider = ({ children }: { children: ReactNode }) => {
   // Club operations
   const getClubById = (id: number) => clubService.getById(id);
   
-  const addClub = (club: Omit<Club, 'id'>) => {
+  const addClub = (club: Omit<Club, '_id'>) => {
     const newClub = clubService.add(club);
     refreshData();
     return newClub;
@@ -117,7 +118,7 @@ export const StorageProvider = ({ children }: { children: ReactNode }) => {
   // Booking operations
   const getBookingById = (id: number) => bookingService.getById(id);
   
-  const addBooking = (booking: Omit<Booking, 'id'>) => {
+  const addBooking = (booking: Omit<Booking, '_id'>) => {
     const newBooking = bookingService.add(booking);
     refreshData();
     return newBooking;
@@ -141,9 +142,16 @@ export const StorageProvider = ({ children }: { children: ReactNode }) => {
     return cancelled;
   };
   
+  // Add the confirmBooking function
+  const confirmBooking = (id: number) => {
+    const confirmed = bookingService.confirmBooking(id);
+    refreshData();
+    return confirmed;
+  };
+  
   // Computed booking lists
   const userBookings = currentUser 
-    ? bookings.filter(booking => booking.userId === currentUser.id)
+    ? bookings.filter(booking => booking.userId === currentUser._id || booking.userId === currentUser.id)
     : [];
     
   const upcomingBookings = bookings.filter(booking => {
@@ -202,6 +210,7 @@ export const StorageProvider = ({ children }: { children: ReactNode }) => {
     updateBooking,
     deleteBooking,
     cancelBooking,
+    confirmBooking, // Add this to the value object
     userBookings,
     upcomingBookings,
     pastBookings,

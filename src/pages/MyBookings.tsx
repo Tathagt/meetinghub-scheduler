@@ -1,4 +1,3 @@
-
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { 
@@ -75,7 +74,7 @@ const MyBookingsPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {upcomingBookings.length > 0 ? (
               upcomingBookings.map((booking) => (
-                <Card key={booking.id} className="overflow-hidden">
+                <Card key={booking._id || booking.id} className="overflow-hidden">
                   <div className={`h-1 ${
                     booking.status === "confirmed" ? "bg-green-500" : "bg-amber-500"
                   }`} />
@@ -96,13 +95,13 @@ const MyBookingsPage = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem className="cursor-pointer" asChild>
-                            <Link to={`/bookings/${booking.id}`}>
+                            <Link to={`/bookings/${booking._id || booking.id}`}>
                               <Info className="mr-2 h-4 w-4" />
                               <span>View Details</span>
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem className="cursor-pointer" asChild>
-                            <Link to={`/bookings/${booking.id}/edit`}>
+                            <Link to={`/bookings/${booking._id || booking.id}/edit`}>
                               <Edit className="mr-2 h-4 w-4" />
                               <span>Edit Booking</span>
                             </Link>
@@ -110,7 +109,7 @@ const MyBookingsPage = () => {
                           {booking.status === "pending" && (
                             <DropdownMenuItem 
                               className="cursor-pointer text-green-600 focus:text-green-600"
-                              onClick={() => handleConfirmBooking(booking.id)}
+                              onClick={() => handleConfirmBooking(Number(booking.id) || Number(booking._id))}
                             >
                               <CheckCircle className="mr-2 h-4 w-4" />
                               <span>Confirm Booking</span>
@@ -118,7 +117,7 @@ const MyBookingsPage = () => {
                           )}
                           <DropdownMenuItem 
                             className="cursor-pointer text-destructive focus:text-destructive"
-                            onClick={() => handleCancelBooking(booking.id)}
+                            onClick={() => handleCancelBooking(Number(booking.id) || Number(booking._id))}
                           >
                             <Trash className="mr-2 h-4 w-4" />
                             <span>Cancel Booking</span>
@@ -150,14 +149,14 @@ const MyBookingsPage = () => {
                     </div>
                     <div className="mt-4 flex gap-2">
                       <Button size="sm" variant="outline" className="flex-1" asChild>
-                        <Link to={`/bookings/${booking.id}`}>Details</Link>
+                        <Link to={`/bookings/${booking._id || booking.id}`}>Details</Link>
                       </Button>
                       {booking.status === "pending" ? (
                         <Button 
                           size="sm" 
                           variant="default" 
                           className="flex-1"
-                          onClick={() => handleConfirmBooking(booking.id)}
+                          onClick={() => handleConfirmBooking(Number(booking.id) || Number(booking._id))}
                         >
                           <CheckCircle className="mr-1 h-4 w-4" />
                           Confirm
@@ -167,7 +166,7 @@ const MyBookingsPage = () => {
                           size="sm" 
                           variant="destructive" 
                           className="flex-1"
-                          onClick={() => handleCancelBooking(booking.id)}
+                          onClick={() => handleCancelBooking(Number(booking.id) || Number(booking._id))}
                         >
                           Cancel
                         </Button>
@@ -197,7 +196,7 @@ const MyBookingsPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {cancelledBookings.length > 0 ? (
               cancelledBookings.map((booking) => (
-                <Card key={booking.id} className="overflow-hidden opacity-75">
+                <Card key={booking._id || booking.id} className="overflow-hidden opacity-75">
                   <div className="h-1 bg-red-500" />
                   <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                     <div>
@@ -225,7 +224,7 @@ const MyBookingsPage = () => {
                     </div>
                     <div className="mt-4">
                       <Button size="sm" variant="outline" className="w-full" asChild>
-                        <Link to={`/bookings/new?rebook=${booking.id}`}>
+                        <Link to={`/bookings/new?rebook=${booking._id || booking.id}`}>
                           Book Again
                         </Link>
                       </Button>

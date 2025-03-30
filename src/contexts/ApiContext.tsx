@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, ReactNode, useState } from 'react';
 import { tableApi, clubApi, bookingApi, userApi } from '@/lib/api';
 import { Table, Club, Booking, User } from '@/lib/types';
@@ -52,7 +51,6 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Load user from localStorage on initialization
   React.useEffect(() => {
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
@@ -65,7 +63,6 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
   
-  // Tables
   const loadTables = async () => {
     setLoading(true);
     setError(null);
@@ -143,7 +140,6 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
-  // Clubs
   const loadClubs = async () => {
     setLoading(true);
     setError(null);
@@ -221,7 +217,6 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
-  // Bookings
   const loadBookings = async () => {
     setLoading(true);
     setError(null);
@@ -346,7 +341,6 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
-  // Auth
   const login = async (email: string, password: string): Promise<User | null> => {
     setLoading(true);
     setError(null);
@@ -425,10 +419,12 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useApiContext = () => {
+export const useApi = () => {
   const context = useContext(ApiContext);
   if (!context) {
-    throw new Error('useApiContext must be used within an ApiProvider');
+    throw new Error('useApi must be used within an ApiProvider');
   }
   return context;
 };
+
+export const useApiContext = useApi;
