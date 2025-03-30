@@ -1,4 +1,5 @@
-import { Table, Club, Booking, User } from './types';
+
+import { Table, Club, Booking, User, EntityId, TableInput, ClubInput, BookingInput, UserInput } from './types';
 
 // Storage keys
 const TABLES_KEY = 'tables_data';
@@ -10,6 +11,7 @@ const CURRENT_USER_KEY = 'current_user';
 // Default data
 const defaultTables: Table[] = [
   {
+    _id: "1",
     id: 1,
     name: "Conference Room A",
     capacity: 12,
@@ -19,6 +21,7 @@ const defaultTables: Table[] = [
     totalSlots: 8,
   },
   {
+    _id: "2",
     id: 2,
     name: "Meeting Room B",
     capacity: 8,
@@ -28,6 +31,7 @@ const defaultTables: Table[] = [
     totalSlots: 8,
   },
   {
+    _id: "3",
     id: 3,
     name: "Study Hall C",
     capacity: 20,
@@ -37,6 +41,7 @@ const defaultTables: Table[] = [
     totalSlots: 8,
   },
   {
+    _id: "4",
     id: 4,
     name: "Discussion Room D",
     capacity: 6,
@@ -46,6 +51,7 @@ const defaultTables: Table[] = [
     totalSlots: 8,
   },
   {
+    _id: "5",
     id: 5,
     name: "Collaboration Space E",
     capacity: 15,
@@ -55,6 +61,7 @@ const defaultTables: Table[] = [
     totalSlots: 8,
   },
   {
+    _id: "6",
     id: 6,
     name: "Seminar Room F",
     capacity: 30,
@@ -66,22 +73,23 @@ const defaultTables: Table[] = [
 ];
 
 const defaultClubs: Club[] = [
-  { id: 1, name: "Tech Club" },
-  { id: 2, name: "Art Society" },
-  { id: 3, name: "Debate Club" },
-  { id: 4, name: "Photography Club" },
-  { id: 5, name: "Robotics Team" },
-  { id: 6, name: "Business Club" },
+  { _id: "1", id: 1, name: "Tech Club" },
+  { _id: "2", id: 2, name: "Art Society" },
+  { _id: "3", id: 3, name: "Debate Club" },
+  { _id: "4", id: 4, name: "Photography Club" },
+  { _id: "5", id: 5, name: "Robotics Team" },
+  { _id: "6", id: 6, name: "Business Club" },
 ];
 
 const defaultBookings: Booking[] = [
   {
+    _id: "1",
     id: 1,
-    tableId: 1,
+    tableId: "1",
     tableName: "Conference Room A",
     date: "2023-09-15",
     time: "14:00 - 16:00",
-    clubId: 1,
+    clubId: "1",
     clubName: "Tech Club",
     purpose: "Weekly Meeting",
     status: "confirmed",
@@ -90,12 +98,13 @@ const defaultBookings: Booking[] = [
     userId: "user1"
   },
   {
+    _id: "2",
     id: 2,
-    tableId: 2,
+    tableId: "2",
     tableName: "Meeting Room B",
     date: "2023-09-16",
     time: "10:00 - 11:30",
-    clubId: 2,
+    clubId: "2",
     clubName: "Art Society",
     purpose: "Project Discussion",
     status: "pending",
@@ -104,12 +113,13 @@ const defaultBookings: Booking[] = [
     userId: "user1"
   },
   {
+    _id: "3",
     id: 3,
-    tableId: 3,
+    tableId: "3",
     tableName: "Study Hall C",
     date: "2023-09-17",
     time: "15:00 - 17:00",
-    clubId: 3,
+    clubId: "3",
     clubName: "Debate Club",
     purpose: "Competition Prep",
     status: "confirmed",
@@ -118,12 +128,13 @@ const defaultBookings: Booking[] = [
     userId: "user2"
   },
   {
+    _id: "4",
     id: 4,
-    tableId: 4,
+    tableId: "4",
     tableName: "Discussion Room D",
     date: "2023-09-18",
     time: "13:00 - 14:30",
-    clubId: 4,
+    clubId: "4",
     clubName: "Photography Club",
     purpose: "Portfolio Review",
     status: "confirmed",
@@ -132,12 +143,13 @@ const defaultBookings: Booking[] = [
     userId: "user2"
   },
   {
+    _id: "5",
     id: 5,
-    tableId: 5,
+    tableId: "5",
     tableName: "Collaboration Space E",
     date: "2023-09-19",
     time: "11:00 - 13:00",
-    clubId: 5,
+    clubId: "5",
     clubName: "Robotics Team",
     purpose: "Project Planning",
     status: "cancelled",
@@ -146,12 +158,13 @@ const defaultBookings: Booking[] = [
     userId: "user1"
   },
   {
+    _id: "6",
     id: 6,
-    tableId: 6,
+    tableId: "6",
     tableName: "Seminar Room F",
     date: "2023-09-20",
     time: "16:00 - 18:00",
-    clubId: 6,
+    clubId: "6",
     clubName: "Business Club",
     purpose: "Guest Speaker",
     status: "confirmed",
@@ -163,6 +176,7 @@ const defaultBookings: Booking[] = [
 
 const defaultUsers: User[] = [
   {
+    _id: "user1",
     id: "user1",
     name: "John Doe",
     email: "john@example.com",
@@ -170,6 +184,7 @@ const defaultUsers: User[] = [
     clubId: 1
   },
   {
+    _id: "user2",
     id: "user2",
     name: "Jane Smith",
     email: "jane@example.com",
@@ -177,6 +192,7 @@ const defaultUsers: User[] = [
     clubId: 3
   },
   {
+    _id: "user3",
     id: "user3",
     name: "Admin User",
     email: "admin@example.com",
@@ -214,20 +230,29 @@ const getAll = <T>(key: string): T[] => {
   return data ? JSON.parse(data) : [];
 };
 
-const getById = <T extends { id: string | number }>(key: string, id: string | number): T | undefined => {
+const getById = <T extends { _id?: string; id?: EntityId }>(key: string, id: EntityId): T | undefined => {
   const items = getAll<T>(key);
-  return items.find(item => item.id === id);
+  return items.find(item => item._id === id.toString() || item.id === id);
 };
 
-const add = <T extends { id?: string | number }>(key: string, item: T): T => {
+const add = <T extends { _id?: string; id?: EntityId }>(key: string, item: T): T => {
   const items = getAll<T>(key);
   
   // Generate a new ID if none exists
-  if (!item.id) {
+  if (!item._id && !item.id) {
     const newId = items.length > 0 
       ? Math.max(...items.map(i => typeof i.id === 'number' ? i.id : 0)) + 1 
       : 1;
-    item = { ...item, id: newId };
+    
+    const newIdStr = newId.toString();
+    item = { ...item, _id: newIdStr, id: newId };
+  } else if (item.id && !item._id) {
+    item = { ...item, _id: item.id.toString() };
+  } else if (item._id && !item.id) {
+    const idNum = parseInt(item._id);
+    if (!isNaN(idNum)) {
+      item = { ...item, id: idNum };
+    }
   }
   
   items.push(item as T);
@@ -235,9 +260,12 @@ const add = <T extends { id?: string | number }>(key: string, item: T): T => {
   return item as T;
 };
 
-const update = <T extends { id: string | number }>(key: string, item: T): T | null => {
+const update = <T extends { _id?: string; id?: EntityId }>(key: string, item: T): T | null => {
   const items = getAll<T>(key);
-  const index = items.findIndex(i => i.id === item.id);
+  const index = items.findIndex(i => 
+    (i._id && item._id && i._id === item._id) || 
+    (i.id && item.id && i.id === item.id)
+  );
   
   if (index === -1) return null;
   
@@ -246,9 +274,12 @@ const update = <T extends { id: string | number }>(key: string, item: T): T | nu
   return item;
 };
 
-const remove = <T extends { id: string | number }>(key: string, id: string | number): boolean => {
+const remove = <T extends { _id?: string; id?: EntityId }>(key: string, id: EntityId): boolean => {
   const items = getAll<T>(key);
-  const filtered = items.filter(item => item.id !== id);
+  const idStr = id.toString();
+  const filtered = items.filter(item => 
+    (item._id !== idStr) && (item.id !== id)
+  );
   
   if (filtered.length === items.length) return false;
   
@@ -259,26 +290,26 @@ const remove = <T extends { id: string | number }>(key: string, id: string | num
 // Specific services for our entities
 export const tableService = {
   getAll: () => getAll<Table>(TABLES_KEY),
-  getById: (id: number) => getById<Table>(TABLES_KEY, id),
-  add: (table: Omit<Table, 'id'>) => add<Table>(TABLES_KEY, table as Table),
+  getById: (id: EntityId) => getById<Table>(TABLES_KEY, id),
+  add: (table: TableInput) => add<Table>(TABLES_KEY, table as Table),
   update: (table: Table) => update<Table>(TABLES_KEY, table),
-  delete: (id: number) => remove<Table>(TABLES_KEY, id),
+  delete: (id: EntityId) => remove<Table>(TABLES_KEY, id),
   getAvailable: () => getAll<Table>(TABLES_KEY).filter(table => table.availableSlots > 0),
   getFullyBooked: () => getAll<Table>(TABLES_KEY).filter(table => table.availableSlots === 0),
 };
 
 export const clubService = {
   getAll: () => getAll<Club>(CLUBS_KEY),
-  getById: (id: number) => getById<Club>(CLUBS_KEY, id),
-  add: (club: Omit<Club, 'id'>) => add<Club>(CLUBS_KEY, club as Club),
+  getById: (id: EntityId) => getById<Club>(CLUBS_KEY, id),
+  add: (club: ClubInput) => add<Club>(CLUBS_KEY, club as Club),
   update: (club: Club) => update<Club>(CLUBS_KEY, club),
-  delete: (id: number) => remove<Club>(CLUBS_KEY, id),
+  delete: (id: EntityId) => remove<Club>(CLUBS_KEY, id),
 };
 
 export const bookingService = {
   getAll: () => getAll<Booking>(BOOKINGS_KEY),
-  getById: (id: number) => getById<Booking>(BOOKINGS_KEY, id),
-  add: (booking: Omit<Booking, 'id'>) => {
+  getById: (id: EntityId) => getById<Booking>(BOOKINGS_KEY, id),
+  add: (booking: BookingInput) => {
     // When adding a booking, update the table's availableSlots
     const newBooking = add<Booking>(BOOKINGS_KEY, booking as Booking);
     
@@ -295,7 +326,7 @@ export const bookingService = {
     return newBooking;
   },
   update: (booking: Booking) => update<Booking>(BOOKINGS_KEY, booking),
-  delete: (id: number) => {
+  delete: (id: EntityId) => {
     const booking = bookingService.getById(id);
     
     if (booking && booking.tableId && booking.status !== 'cancelled') {
@@ -311,7 +342,7 @@ export const bookingService = {
     
     return remove<Booking>(BOOKINGS_KEY, id);
   },
-  cancelBooking: (id: number) => {
+  cancelBooking: (id: EntityId) => {
     const booking = bookingService.getById(id);
     
     if (booking) {
@@ -336,7 +367,7 @@ export const bookingService = {
     
     return null;
   },
-  confirmBooking: (id: number) => {
+  confirmBooking: (id: EntityId) => {
     const booking = bookingService.getById(id);
     
     if (booking) {
@@ -374,7 +405,7 @@ export const bookingService = {
 export const userService = {
   getAll: () => getAll<User>(USERS_KEY),
   getById: (id: string) => getById<User>(USERS_KEY, id),
-  add: (user: Omit<User, 'id'>) => add<User>(USERS_KEY, user as User),
+  add: (user: UserInput) => add<User>(USERS_KEY, user as User),
   update: (user: User) => update<User>(USERS_KEY, user),
   delete: (id: string) => remove<User>(USERS_KEY, id),
   

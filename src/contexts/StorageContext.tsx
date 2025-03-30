@@ -1,34 +1,33 @@
-
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { initializeStorage, tableService, clubService, bookingService, userService } from '@/lib/storageService';
-import { Table, Club, Booking, User } from '@/lib/types';
+import { Table, Club, Booking, User, TableInput, ClubInput, BookingInput, EntityId } from '@/lib/types';
 import { toast } from 'sonner';
 
 type StorageContextType = {
   // Tables
   tables: Table[];
-  getTableById: (id: number) => Table | undefined;
-  addTable: (table: Omit<Table, '_id'>) => Table;
+  getTableById: (id: EntityId) => Table | undefined;
+  addTable: (table: TableInput) => Table;
   updateTable: (table: Table) => Table | null;
-  deleteTable: (id: number) => boolean;
+  deleteTable: (id: EntityId) => boolean;
   availableTables: Table[];
   fullyBookedTables: Table[];
   
   // Clubs
   clubs: Club[];
-  getClubById: (id: number) => Club | undefined;
-  addClub: (club: Omit<Club, '_id'>) => Club;
+  getClubById: (id: EntityId) => Club | undefined;
+  addClub: (club: ClubInput) => Club;
   updateClub: (club: Club) => Club | null;
-  deleteClub: (id: number) => boolean;
+  deleteClub: (id: EntityId) => boolean;
   
   // Bookings
   bookings: Booking[];
-  getBookingById: (id: number) => Booking | undefined;
-  addBooking: (booking: Omit<Booking, '_id'>) => Booking;
+  getBookingById: (id: EntityId) => Booking | undefined;
+  addBooking: (booking: BookingInput) => Booking;
   updateBooking: (booking: Booking) => Booking | null;
-  deleteBooking: (id: number) => boolean;
-  cancelBooking: (id: number) => Booking | null;
-  confirmBooking: (id: number) => Booking | null; // Added this function
+  deleteBooking: (id: EntityId) => boolean;
+  cancelBooking: (id: EntityId) => Booking | null;
+  confirmBooking: (id: EntityId) => Booking | null;
   userBookings: Booking[];
   upcomingBookings: Booking[];
   pastBookings: Booking[];
@@ -53,7 +52,6 @@ export const StorageProvider = ({ children }: { children: ReactNode }) => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   
-  // Initialize storage on first load
   useEffect(() => {
     try {
       initializeStorage();
@@ -73,10 +71,9 @@ export const StorageProvider = ({ children }: { children: ReactNode }) => {
     setCurrentUser(userService.getCurrentUser());
   };
   
-  // Table operations
-  const getTableById = (id: number) => tableService.getById(id);
+  const getTableById = (id: EntityId) => tableService.getById(id);
   
-  const addTable = (table: Omit<Table, '_id'>) => {
+  const addTable = (table: TableInput) => {
     const newTable = tableService.add(table);
     refreshData();
     return newTable;
@@ -88,16 +85,15 @@ export const StorageProvider = ({ children }: { children: ReactNode }) => {
     return updated;
   };
   
-  const deleteTable = (id: number) => {
+  const deleteTable = (id: EntityId) => {
     const deleted = tableService.delete(id);
     refreshData();
     return deleted;
   };
   
-  // Club operations
-  const getClubById = (id: number) => clubService.getById(id);
+  const getClubById = (id: EntityId) => clubService.getById(id);
   
-  const addClub = (club: Omit<Club, '_id'>) => {
+  const addClub = (club: ClubInput) => {
     const newClub = clubService.add(club);
     refreshData();
     return newClub;
@@ -109,16 +105,15 @@ export const StorageProvider = ({ children }: { children: ReactNode }) => {
     return updated;
   };
   
-  const deleteClub = (id: number) => {
+  const deleteClub = (id: EntityId) => {
     const deleted = clubService.delete(id);
     refreshData();
     return deleted;
   };
   
-  // Booking operations
-  const getBookingById = (id: number) => bookingService.getById(id);
+  const getBookingById = (id: EntityId) => bookingService.getById(id);
   
-  const addBooking = (booking: Omit<Booking, '_id'>) => {
+  const addBooking = (booking: BookingInput) => {
     const newBooking = bookingService.add(booking);
     refreshData();
     return newBooking;
@@ -130,26 +125,24 @@ export const StorageProvider = ({ children }: { children: ReactNode }) => {
     return updated;
   };
   
-  const deleteBooking = (id: number) => {
+  const deleteBooking = (id: EntityId) => {
     const deleted = bookingService.delete(id);
     refreshData();
     return deleted;
   };
   
-  const cancelBooking = (id: number) => {
+  const cancelBooking = (id: EntityId) => {
     const cancelled = bookingService.cancelBooking(id);
     refreshData();
     return cancelled;
   };
   
-  // Add the confirmBooking function
-  const confirmBooking = (id: number) => {
+  const confirmBooking = (id: EntityId) => {
     const confirmed = bookingService.confirmBooking(id);
     refreshData();
     return confirmed;
   };
   
-  // Computed booking lists
   const userBookings = currentUser 
     ? bookings.filter(booking => booking.userId === currentUser._id || booking.userId === currentUser.id)
     : [];
@@ -170,7 +163,6 @@ export const StorageProvider = ({ children }: { children: ReactNode }) => {
     booking.status === 'cancelled'
   );
   
-  // Auth operations
   const login = (email: string, password: string) => {
     const user = userService.login(email, password);
     if (user) {
@@ -185,7 +177,6 @@ export const StorageProvider = ({ children }: { children: ReactNode }) => {
     setCurrentUser(null);
   };
   
-  // Computed table lists
   const availableTables = tables.filter(table => table.availableSlots > 0);
   const fullyBookedTables = tables.filter(table => table.availableSlots === 0);
   
@@ -210,7 +201,7 @@ export const StorageProvider = ({ children }: { children: ReactNode }) => {
     updateBooking,
     deleteBooking,
     cancelBooking,
-    confirmBooking, // Add this to the value object
+    confirmBooking,
     userBookings,
     upcomingBookings,
     pastBookings,

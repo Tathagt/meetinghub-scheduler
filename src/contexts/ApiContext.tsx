@@ -1,13 +1,14 @@
+
 import React, { createContext, useContext, ReactNode, useState } from 'react';
 import { tableApi, clubApi, bookingApi, userApi } from '@/lib/api';
-import { Table, Club, Booking, User } from '@/lib/types';
+import { Table, Club, Booking, User, TableInput, ClubInput, BookingInput, UserInput } from '@/lib/types';
 
 type ApiContextType = {
   // Tables
   tables: Table[];
   loadTables: () => Promise<void>;
   getTableById: (id: string) => Promise<Table | null>;
-  createTable: (table: Omit<Table, '_id'>) => Promise<Table | null>;
+  createTable: (table: TableInput) => Promise<Table | null>;
   updateTable: (table: Table) => Promise<Table | null>;
   deleteTable: (id: string) => Promise<boolean>;
   
@@ -15,7 +16,7 @@ type ApiContextType = {
   clubs: Club[];
   loadClubs: () => Promise<void>;
   getClubById: (id: string) => Promise<Club | null>;
-  createClub: (club: Omit<Club, '_id'>) => Promise<Club | null>;
+  createClub: (club: ClubInput) => Promise<Club | null>;
   updateClub: (club: Club) => Promise<Club | null>;
   deleteClub: (id: string) => Promise<boolean>;
   
@@ -24,7 +25,7 @@ type ApiContextType = {
   loadBookings: () => Promise<void>;
   getUserBookings: (userId: string) => Promise<Booking[]>;
   getBookingById: (id: string) => Promise<Booking | null>;
-  createBooking: (booking: Omit<Booking, '_id'>) => Promise<Booking | null>;
+  createBooking: (booking: BookingInput) => Promise<Booking | null>;
   updateBooking: (booking: Booking) => Promise<Booking | null>;
   cancelBooking: (id: string) => Promise<Booking | null>;
   confirmBooking: (id: string) => Promise<Booking | null>;
@@ -33,7 +34,7 @@ type ApiContextType = {
   // User/Auth
   currentUser: User | null;
   login: (email: string, password: string) => Promise<User | null>;
-  register: (userData: Omit<User, '_id'>) => Promise<User | null>;
+  register: (userData: UserInput) => Promise<User | null>;
   logout: () => void;
   
   // State
@@ -92,11 +93,11 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
-  const createTable = async (table: Omit<Table, '_id'>): Promise<Table | null> => {
+  const createTable = async (table: TableInput): Promise<Table | null> => {
     setLoading(true);
     setError(null);
     try {
-      const newTable = await tableApi.create(table);
+      const newTable = await tableApi.create(table as Omit<Table, '_id'>);
       setTables([...tables, newTable]);
       return newTable;
     } catch (err) {
@@ -169,11 +170,11 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
-  const createClub = async (club: Omit<Club, '_id'>): Promise<Club | null> => {
+  const createClub = async (club: ClubInput): Promise<Club | null> => {
     setLoading(true);
     setError(null);
     try {
-      const newClub = await clubApi.create(club);
+      const newClub = await clubApi.create(club as Omit<Club, '_id'>);
       setClubs([...clubs, newClub]);
       return newClub;
     } catch (err) {
@@ -261,11 +262,11 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
-  const createBooking = async (booking: Omit<Booking, '_id'>): Promise<Booking | null> => {
+  const createBooking = async (booking: BookingInput): Promise<Booking | null> => {
     setLoading(true);
     setError(null);
     try {
-      const newBooking = await bookingApi.create(booking);
+      const newBooking = await bookingApi.create(booking as Omit<Booking, '_id'>);
       setBookings([...bookings, newBooking]);
       return newBooking;
     } catch (err) {
@@ -358,11 +359,11 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
-  const register = async (userData: Omit<User, '_id'>): Promise<User | null> => {
+  const register = async (userData: UserInput): Promise<User | null> => {
     setLoading(true);
     setError(null);
     try {
-      const user = await userApi.register(userData);
+      const user = await userApi.register(userData as Omit<User, '_id'>);
       return user;
     } catch (err) {
       setError('Registration failed.');
