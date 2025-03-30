@@ -1,7 +1,7 @@
 
-// Define our data models
+// Define our data models with MongoDB _id
 export interface Table {
-  id: number;
+  _id: string;
   name: string;
   capacity: number;
   features: string[];
@@ -11,17 +11,17 @@ export interface Table {
 }
 
 export interface Club {
-  id: number;
+  _id: string;
   name: string;
 }
 
 export interface Booking {
-  id: number;
-  tableId: number;
+  _id: string;
+  tableId: string;
   tableName: string;
   date: string;
   time: string;
-  clubId: number;
+  clubId: string;
   clubName: string;
   purpose: string;
   status: "confirmed" | "pending" | "cancelled";
@@ -31,9 +31,10 @@ export interface Booking {
 }
 
 export interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   role: "student" | "admin" | "coordinator";
   clubId?: number;
+  // Note: Password field is only used on the server side
 }
