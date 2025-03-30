@@ -1,7 +1,12 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const connectDB = require('./config/db');
+const userRoutes = require('./routes/userRoutes');
+
+// Load environment variables
+dotenv.config();
 
 // Initialize app
 const app = express();
@@ -13,6 +18,9 @@ connectDB();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Routes
+app.use('/api', userRoutes);
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/table-booking';
@@ -612,60 +620,10 @@ app.delete('/api/users/:id', async (req, res) => {
 });
 
 // Login endpoint
-app.post('/api/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    
-    // In a real app, you would verify the password hash
-    // Here we're just checking if the email exists
-    const user = users.find(u => u.email === email);
-    
-    if (!user || user.password !== password) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-    
-    res.json(user);
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Login failed' });
-  }
-});
+app.post('/api/login', require('./controllers/userController').loginUser);
 
 // Register endpoint
-app.post('/api/register', async (req, res) => {
-  try {
-    const { name, email, password, role, clubId } = req.body;
-    
-    // Check if user already exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ error: 'User already exists' });
-    }
-    
-    // Create new user
-    const user = await User.create({
-      name,
-      email,
-      password,
-      role,
-      clubId
-    });
-    
-    // Return user without password
-    const userResponse = {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      clubId: user.clubId
-    };
-    
-    res.status(201).json(userResponse);
-  } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ error: 'Registration failed' });
-  }
-});
+app.post('/api/register', require('./controllers/userController').registerUser);
 
 // Start server
 app.listen(PORT, () => {

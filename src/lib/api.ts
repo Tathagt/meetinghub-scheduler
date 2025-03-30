@@ -124,7 +124,7 @@ export const userApi = {
     return response.data;
   },
   
-  create: async (user: Omit<User, 'id'>): Promise<User> => {
+  create: async (user: Omit<User, '_id'>): Promise<User> => {
     const response = await api.post('/users', user);
     return response.data;
   },
@@ -177,6 +177,17 @@ export const userApi = {
           return mockUser;
         }
       }
+      throw error;
+    }
+  },
+  
+  // Register
+  register: async (userData: Omit<User, '_id'>): Promise<User> => {
+    try {
+      const response = await api.post('/register', userData);
+      return response.data;
+    } catch (error) {
+      console.error('Registration error:', error);
       throw error;
     }
   },

@@ -1,398 +1,421 @@
-import { createContext, useContext, ReactNode, useState } from 'react';
+
+import React, { createContext, useContext, ReactNode, useState } from 'react';
 import { tableApi, clubApi, bookingApi, userApi } from '@/lib/api';
 import { Table, Club, Booking, User } from '@/lib/types';
-import { toast } from 'sonner';
 
 type ApiContextType = {
-  // Loading state
-  isLoading: boolean;
-  
   // Tables
-  fetchTables: () => Promise<Table[]>;
-  getTableById: (id: number) => Promise<Table | undefined>;
-  addTable: (table: Omit<Table, 'id'>) => Promise<Table | undefined>;
-  updateTable: (table: Table) => Promise<Table | undefined>;
-  deleteTable: (id: number) => Promise<boolean>;
+  tables: Table[];
+  loadTables: () => Promise<void>;
+  getTableById: (id: string) => Promise<Table | null>;
+  createTable: (table: Omit<Table, '_id'>) => Promise<Table | null>;
+  updateTable: (table: Table) => Promise<Table | null>;
+  deleteTable: (id: string) => Promise<boolean>;
   
   // Clubs
-  fetchClubs: () => Promise<Club[]>;
-  getClubById: (id: number) => Promise<Club | undefined>;
-  addClub: (club: Omit<Club, 'id'>) => Promise<Club | undefined>;
-  updateClub: (club: Club) => Promise<Club | undefined>;
-  deleteClub: (id: number) => Promise<boolean>;
+  clubs: Club[];
+  loadClubs: () => Promise<void>;
+  getClubById: (id: string) => Promise<Club | null>;
+  createClub: (club: Omit<Club, '_id'>) => Promise<Club | null>;
+  updateClub: (club: Club) => Promise<Club | null>;
+  deleteClub: (id: string) => Promise<boolean>;
   
   // Bookings
-  fetchBookings: () => Promise<Booking[]>;
-  fetchUserBookings: (userId: string) => Promise<Booking[]>;
-  getBookingById: (id: number) => Promise<Booking | undefined>;
-  addBooking: (booking: Omit<Booking, 'id'>) => Promise<Booking | undefined>;
-  updateBooking: (booking: Booking) => Promise<Booking | undefined>;
-  cancelBooking: (id: number) => Promise<Booking | undefined>;
-  deleteBooking: (id: number) => Promise<boolean>;
-  confirmBooking: (id: number) => Promise<Booking | undefined>;
+  bookings: Booking[];
+  loadBookings: () => Promise<void>;
+  getUserBookings: (userId: string) => Promise<Booking[]>;
+  getBookingById: (id: string) => Promise<Booking | null>;
+  createBooking: (booking: Omit<Booking, '_id'>) => Promise<Booking | null>;
+  updateBooking: (booking: Booking) => Promise<Booking | null>;
+  cancelBooking: (id: string) => Promise<Booking | null>;
+  confirmBooking: (id: string) => Promise<Booking | null>;
+  deleteBooking: (id: string) => Promise<boolean>;
   
-  // Users
-  fetchUsers: () => Promise<User[]>;
-  getUserById: (id: string) => Promise<User | undefined>;
-  
-  // Auth
-  login: (email: string, password: string) => Promise<User | undefined>;
-  logout: () => void;
+  // User/Auth
   currentUser: User | null;
-  setCurrentUser: (user: User | null) => void;
+  login: (email: string, password: string) => Promise<User | null>;
+  register: (userData: Omit<User, '_id'>) => Promise<User | null>;
+  logout: () => void;
+  
+  // State
+  loading: boolean;
+  error: string | null;
 };
 
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
 
 export const ApiProvider = ({ children }: { children: ReactNode }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(() => {
-    // Initialize from localStorage if available
-    const savedUser = localStorage.getItem('current_user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [tables, setTables] = useState<Table[]>([]);
+  const [clubs, setClubs] = useState<Club[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
-  // Table operations
-  const fetchTables = async () => {
-    setIsLoading(true);
+  // Load user from localStorage on initialization
+  React.useEffect(() => {
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      try {
+        setCurrentUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error('Error parsing stored user:', e);
+        localStorage.removeItem('currentUser');
+      }
+    }
+  }, []);
+  
+  // Tables
+  const loadTables = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      return await tableApi.getAll();
-    } catch (error) {
-      console.error('Error fetching tables:', error);
-      toast.error('Failed to fetch tables');
-      return [];
+      const data = await tableApi.getAll();
+      setTables(data);
+    } catch (err) {
+      setError('Failed to load tables');
+      console.error(err);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const getTableById = async (id: number) => {
-    setIsLoading(true);
+  const getTableById = async (id: string): Promise<Table | null> => {
+    setLoading(true);
+    setError(null);
     try {
-      return await tableApi.getById(id);
-    } catch (error) {
-      console.error(`Error fetching table ${id}:`, error);
-      toast.error('Failed to fetch table details');
-      return undefined;
+      const table = await tableApi.getById(id);
+      return table;
+    } catch (err) {
+      setError('Failed to get table');
+      console.error(err);
+      return null;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const addTable = async (table: Omit<Table, 'id'>) => {
-    setIsLoading(true);
+  const createTable = async (table: Omit<Table, '_id'>): Promise<Table | null> => {
+    setLoading(true);
+    setError(null);
     try {
       const newTable = await tableApi.create(table);
-      toast.success('Table added successfully');
+      setTables([...tables, newTable]);
       return newTable;
-    } catch (error) {
-      console.error('Error adding table:', error);
-      toast.error('Failed to add table');
-      return undefined;
+    } catch (err) {
+      setError('Failed to create table');
+      console.error(err);
+      return null;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const updateTable = async (table: Table) => {
-    setIsLoading(true);
+  const updateTable = async (table: Table): Promise<Table | null> => {
+    setLoading(true);
+    setError(null);
     try {
       const updatedTable = await tableApi.update(table);
-      toast.success('Table updated successfully');
+      setTables(tables.map(t => t._id === updatedTable._id ? updatedTable : t));
       return updatedTable;
-    } catch (error) {
-      console.error(`Error updating table ${table.id}:`, error);
-      toast.error('Failed to update table');
-      return undefined;
+    } catch (err) {
+      setError('Failed to update table');
+      console.error(err);
+      return null;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const deleteTable = async (id: number) => {
-    setIsLoading(true);
+  const deleteTable = async (id: string): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
     try {
       await tableApi.delete(id);
-      toast.success('Table deleted successfully');
+      setTables(tables.filter(t => t._id !== id));
       return true;
-    } catch (error) {
-      console.error(`Error deleting table ${id}:`, error);
-      toast.error('Failed to delete table');
+    } catch (err) {
+      setError('Failed to delete table');
+      console.error(err);
       return false;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  // Club operations
-  const fetchClubs = async () => {
-    setIsLoading(true);
+  // Clubs
+  const loadClubs = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      return await clubApi.getAll();
-    } catch (error) {
-      console.error('Error fetching clubs:', error);
-      toast.error('Failed to fetch clubs');
-      return [];
+      const data = await clubApi.getAll();
+      setClubs(data);
+    } catch (err) {
+      setError('Failed to load clubs');
+      console.error(err);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const getClubById = async (id: number) => {
-    setIsLoading(true);
+  const getClubById = async (id: string): Promise<Club | null> => {
+    setLoading(true);
+    setError(null);
     try {
-      return await clubApi.getById(id);
-    } catch (error) {
-      console.error(`Error fetching club ${id}:`, error);
-      toast.error('Failed to fetch club details');
-      return undefined;
+      const club = await clubApi.getById(id);
+      return club;
+    } catch (err) {
+      setError('Failed to get club');
+      console.error(err);
+      return null;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const addClub = async (club: Omit<Club, 'id'>) => {
-    setIsLoading(true);
+  const createClub = async (club: Omit<Club, '_id'>): Promise<Club | null> => {
+    setLoading(true);
+    setError(null);
     try {
       const newClub = await clubApi.create(club);
-      toast.success('Club added successfully');
+      setClubs([...clubs, newClub]);
       return newClub;
-    } catch (error) {
-      console.error('Error adding club:', error);
-      toast.error('Failed to add club');
-      return undefined;
+    } catch (err) {
+      setError('Failed to create club');
+      console.error(err);
+      return null;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const updateClub = async (club: Club) => {
-    setIsLoading(true);
+  const updateClub = async (club: Club): Promise<Club | null> => {
+    setLoading(true);
+    setError(null);
     try {
       const updatedClub = await clubApi.update(club);
-      toast.success('Club updated successfully');
+      setClubs(clubs.map(c => c._id === updatedClub._id ? updatedClub : c));
       return updatedClub;
-    } catch (error) {
-      console.error(`Error updating club ${club.id}:`, error);
-      toast.error('Failed to update club');
-      return undefined;
+    } catch (err) {
+      setError('Failed to update club');
+      console.error(err);
+      return null;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const deleteClub = async (id: number) => {
-    setIsLoading(true);
+  const deleteClub = async (id: string): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
     try {
       await clubApi.delete(id);
-      toast.success('Club deleted successfully');
+      setClubs(clubs.filter(c => c._id !== id));
       return true;
-    } catch (error) {
-      console.error(`Error deleting club ${id}:`, error);
-      toast.error('Failed to delete club');
+    } catch (err) {
+      setError('Failed to delete club');
+      console.error(err);
       return false;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  // Booking operations
-  const fetchBookings = async () => {
-    setIsLoading(true);
+  // Bookings
+  const loadBookings = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      return await bookingApi.getAll();
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
-      toast.error('Failed to fetch bookings');
+      const data = await bookingApi.getAll();
+      setBookings(data);
+    } catch (err) {
+      setError('Failed to load bookings');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const getUserBookings = async (userId: string): Promise<Booking[]> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const userBookings = await bookingApi.getUserBookings(userId);
+      return userBookings;
+    } catch (err) {
+      setError('Failed to get user bookings');
+      console.error(err);
       return [];
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const fetchUserBookings = async (userId: string) => {
-    setIsLoading(true);
+  const getBookingById = async (id: string): Promise<Booking | null> => {
+    setLoading(true);
+    setError(null);
     try {
-      return await bookingApi.getUserBookings(userId);
-    } catch (error) {
-      console.error(`Error fetching bookings for user ${userId}:`, error);
-      toast.error('Failed to fetch your bookings');
-      return [];
+      const booking = await bookingApi.getById(id);
+      return booking;
+    } catch (err) {
+      setError('Failed to get booking');
+      console.error(err);
+      return null;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const getBookingById = async (id: number) => {
-    setIsLoading(true);
-    try {
-      return await bookingApi.getById(id);
-    } catch (error) {
-      console.error(`Error fetching booking ${id}:`, error);
-      toast.error('Failed to fetch booking details');
-      return undefined;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const addBooking = async (booking: Omit<Booking, 'id'>) => {
-    setIsLoading(true);
+  const createBooking = async (booking: Omit<Booking, '_id'>): Promise<Booking | null> => {
+    setLoading(true);
+    setError(null);
     try {
       const newBooking = await bookingApi.create(booking);
-      toast.success('Booking created successfully');
+      setBookings([...bookings, newBooking]);
       return newBooking;
-    } catch (error) {
-      console.error('Error creating booking:', error);
-      toast.error('Failed to create booking');
-      return undefined;
+    } catch (err) {
+      setError('Failed to create booking');
+      console.error(err);
+      return null;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const updateBooking = async (booking: Booking) => {
-    setIsLoading(true);
+  const updateBooking = async (booking: Booking): Promise<Booking | null> => {
+    setLoading(true);
+    setError(null);
     try {
       const updatedBooking = await bookingApi.update(booking);
-      toast.success('Booking updated successfully');
+      setBookings(bookings.map(b => b._id === updatedBooking._id ? updatedBooking : b));
       return updatedBooking;
-    } catch (error) {
-      console.error(`Error updating booking ${booking.id}:`, error);
-      toast.error('Failed to update booking');
-      return undefined;
+    } catch (err) {
+      setError('Failed to update booking');
+      console.error(err);
+      return null;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const cancelBooking = async (id: number) => {
-    setIsLoading(true);
+  const cancelBooking = async (id: string): Promise<Booking | null> => {
+    setLoading(true);
+    setError(null);
     try {
       const cancelledBooking = await bookingApi.cancel(id);
-      toast.success('Booking cancelled successfully');
+      setBookings(bookings.map(b => b._id === cancelledBooking._id ? cancelledBooking : b));
       return cancelledBooking;
-    } catch (error) {
-      console.error(`Error cancelling booking ${id}:`, error);
-      toast.error('Failed to cancel booking');
-      return undefined;
+    } catch (err) {
+      setError('Failed to cancel booking');
+      console.error(err);
+      return null;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const deleteBooking = async (id: number) => {
-    setIsLoading(true);
-    try {
-      await bookingApi.delete(id);
-      toast.success('Booking deleted successfully');
-      return true;
-    } catch (error) {
-      console.error(`Error deleting booking ${id}:`, error);
-      toast.error('Failed to delete booking');
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const confirmBooking = async (id: number) => {
-    setIsLoading(true);
+  const confirmBooking = async (id: string): Promise<Booking | null> => {
+    setLoading(true);
+    setError(null);
     try {
       const confirmedBooking = await bookingApi.confirm(id);
-      toast.success('Booking confirmed successfully');
+      setBookings(bookings.map(b => b._id === confirmedBooking._id ? confirmedBooking : b));
       return confirmedBooking;
-    } catch (error) {
-      console.error(`Error confirming booking ${id}:`, error);
-      toast.error('Failed to confirm booking');
-      return undefined;
+    } catch (err) {
+      setError('Failed to confirm booking');
+      console.error(err);
+      return null;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  // User operations
-  const fetchUsers = async () => {
-    setIsLoading(true);
+  const deleteBooking = async (id: string): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
     try {
-      return await userApi.getAll();
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      toast.error('Failed to fetch users');
-      return [];
+      await bookingApi.delete(id);
+      setBookings(bookings.filter(b => b._id !== id));
+      return true;
+    } catch (err) {
+      setError('Failed to delete booking');
+      console.error(err);
+      return false;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
-  const getUserById = async (id: string) => {
-    setIsLoading(true);
-    try {
-      return await userApi.getById(id);
-    } catch (error) {
-      console.error(`Error fetching user ${id}:`, error);
-      toast.error('Failed to fetch user details');
-      return undefined;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  // Auth operations
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
+  // Auth
+  const login = async (email: string, password: string): Promise<User | null> => {
+    setLoading(true);
+    setError(null);
     try {
       const user = await userApi.login(email, password);
       setCurrentUser(user);
-      localStorage.setItem('current_user', JSON.stringify(user));
-      toast.success('Logged in successfully');
+      localStorage.setItem('currentUser', JSON.stringify(user));
       return user;
-    } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Login failed. Please check your credentials.');
-      return undefined;
+    } catch (err) {
+      setError('Login failed. Please check your credentials.');
+      console.error(err);
+      return null;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
+    }
+  };
+  
+  const register = async (userData: Omit<User, '_id'>): Promise<User | null> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const user = await userApi.register(userData);
+      return user;
+    } catch (err) {
+      setError('Registration failed.');
+      console.error(err);
+      return null;
+    } finally {
+      setLoading(false);
     }
   };
   
   const logout = () => {
     setCurrentUser(null);
-    localStorage.removeItem('current_user');
-    toast.success('Logged out successfully');
+    localStorage.removeItem('currentUser');
   };
   
   const value = {
-    isLoading,
-    
-    fetchTables,
+    tables,
+    loadTables,
     getTableById,
-    addTable,
+    createTable,
     updateTable,
     deleteTable,
     
-    fetchClubs,
+    clubs,
+    loadClubs,
     getClubById,
-    addClub,
+    createClub,
     updateClub,
     deleteClub,
     
-    fetchBookings,
-    fetchUserBookings,
+    bookings,
+    loadBookings,
+    getUserBookings,
     getBookingById,
-    addBooking,
+    createBooking,
     updateBooking,
     cancelBooking,
-    deleteBooking,
     confirmBooking,
+    deleteBooking,
     
-    fetchUsers,
-    getUserById,
-    
-    login,
-    logout,
     currentUser,
-    setCurrentUser,
+    login,
+    register,
+    logout,
+    
+    loading,
+    error,
   };
   
   return (
@@ -402,10 +425,10 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useApi = () => {
+export const useApiContext = () => {
   const context = useContext(ApiContext);
   if (!context) {
-    throw new Error('useApi must be used within an ApiProvider');
+    throw new Error('useApiContext must be used within an ApiProvider');
   }
   return context;
 };
