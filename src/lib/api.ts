@@ -1,6 +1,5 @@
-
 import axios from 'axios';
-import { Table, Club, Booking, User } from './types';
+import { Table, Club, Booking, User, TableInput, ClubInput, BookingInput, UserInput } from './types';
 
 // Determine the API URL based on the environment
 // This will use the current hostname if not localhost
@@ -28,7 +27,7 @@ export const tableApi = {
     return response.data;
   },
   
-  create: async (table: Omit<Table, 'id'>): Promise<Table> => {
+  create: async (table: TableInput): Promise<Table> => {
     const response = await api.post('/tables', table);
     return response.data;
   },
@@ -55,7 +54,7 @@ export const clubApi = {
     return response.data;
   },
   
-  create: async (club: Omit<Club, 'id'>): Promise<Club> => {
+  create: async (club: ClubInput): Promise<Club> => {
     const response = await api.post('/clubs', club);
     return response.data;
   },
@@ -87,7 +86,7 @@ export const bookingApi = {
     return response.data;
   },
   
-  create: async (booking: Omit<Booking, 'id'>): Promise<Booking> => {
+  create: async (booking: BookingInput): Promise<Booking> => {
     const response = await api.post('/bookings', booking);
     return response.data;
   },
@@ -182,7 +181,7 @@ export const userApi = {
   },
   
   // Register
-  register: async (userData: Omit<User, '_id'>): Promise<User> => {
+  register: async (userData: UserInput): Promise<User> => {
     try {
       const response = await api.post('/register', userData);
       return response.data;

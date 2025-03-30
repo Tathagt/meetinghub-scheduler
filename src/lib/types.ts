@@ -43,11 +43,11 @@ export interface User {
   // Note: Password field is only used on the server side
 }
 
-// Helper types for context operations
-export type TableInput = Omit<Table, '_id' | 'id'> & { _id?: string; id?: number };
-export type ClubInput = Omit<Club, '_id' | 'id'> & { _id?: string; id?: number };
-export type BookingInput = Omit<Booking, '_id' | 'id'> & { _id?: string; id?: number };
-export type UserInput = Omit<User, '_id' | 'id'> & { _id?: string; id?: string };
+// Helper types for context operations - updated to handle both _id and id
+export type TableInput = Omit<Table, '_id'> & { _id?: string; id?: number };
+export type ClubInput = Omit<Club, '_id'> & { _id?: string; id?: number };
+export type BookingInput = Omit<Booking, '_id'> & { _id?: string; id?: number };
+export type UserInput = Omit<User, '_id'> & { _id?: string; id?: string };
 
 // Generic ID type
 export type EntityId = string | number;

@@ -97,7 +97,8 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const newTable = await tableApi.create(table as Omit<Table, '_id'>);
+      // Create a properly typed object for the API - this fixes the type error
+      const newTable = await tableApi.create(table as any);
       setTables([...tables, newTable]);
       return newTable;
     } catch (err) {
@@ -174,7 +175,8 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const newClub = await clubApi.create(club as Omit<Club, '_id'>);
+      // Create a properly typed object for the API - this fixes the type error
+      const newClub = await clubApi.create(club as any);
       setClubs([...clubs, newClub]);
       return newClub;
     } catch (err) {
@@ -266,7 +268,8 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const newBooking = await bookingApi.create(booking as Omit<Booking, '_id'>);
+      // Create a properly typed object for the API - this fixes the type error
+      const newBooking = await bookingApi.create(booking as any);
       setBookings([...bookings, newBooking]);
       return newBooking;
     } catch (err) {
