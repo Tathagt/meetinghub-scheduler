@@ -1,3 +1,4 @@
+
 import { Table, Club, Booking, User, EntityId, TableInput, ClubInput, BookingInput, UserInput } from './types';
 
 // Storage keys
@@ -12,8 +13,8 @@ const defaultTables: Table[] = [
   {
     _id: "1",
     id: 1,
-    name: "Conference Room A",
-    capacity: 12,
+    name: "HALL 1",
+    capacity: 17,
     features: ["BY OUR OWN"],
     location: "Building TECH PARK 2",
     availableSlots: 10,
@@ -22,8 +23,8 @@ const defaultTables: Table[] = [
   {
     _id: "2",
     id: 2,
-    name: "Meeting Room B",
-    capacity: 8,
+    name: "HALL 2",
+    capacity: 18,
     features: ["BY OUR OWN"],
     location: "Building TECH PARK 2",
     availableSlots: 10,
