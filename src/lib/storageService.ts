@@ -1,4 +1,3 @@
-
 import { Table, Club, Booking, User, EntityId, TableInput, ClubInput, BookingInput, UserInput } from './types';
 
 // Storage keys
