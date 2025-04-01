@@ -12,8 +12,8 @@ const defaultTables: Table[] = [
   {
     _id: "1",
     id: 1,
-    name: "HALL 1",
-    capacity: 17,
+    name: "Conference Room A",
+    capacity: 12,
     features: ["BY OUR OWN"],
     location: "Building TECH PARK 2",
     availableSlots: 10,
@@ -22,8 +22,8 @@ const defaultTables: Table[] = [
   {
     _id: "2",
     id: 2,
-    name: "HALL 2",
-    capacity: 18,
+    name: "Meeting Room B",
+    capacity: 8,
     features: ["BY OUR OWN"],
     location: "Building TECH PARK 2",
     availableSlots: 10,

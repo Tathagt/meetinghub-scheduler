@@ -2,22 +2,18 @@
 [
   {
     "id": 1,
-    "name": "HALL 1",
-    "capacity": 17,
-    "features": [
-      "BY OUR OWN"
-    ],
+    "name": "Conference Room A",
+    "capacity": 12,
+    "features": ["BY OUR OWN"],
     "location": "Building TECH PARK 2",
     "availableSlots": 10,
     "totalSlots": 10
   },
   {
     "id": 2,
-    "name": "HALL 2",
-    "capacity": 18,
-    "features": [
-      "BY OUR OWN"
-    ],
+    "name": "Meeting Room B",
+    "capacity": 8,
+    "features": ["BY OUR OWN"],
     "location": "Building TECH PARK 2",
     "availableSlots": 10,
     "totalSlots": 10

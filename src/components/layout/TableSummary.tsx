@@ -3,34 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
-// Mock data for tables - using the same data as in Tables.tsx
-const tables = [
-  {
-    id: 1,
-    name: "HALL 1",
-    capacity: 17,
-    features: ["BY OUR OWN"],
-    location: "Building TECH PARK 2",
-    availableSlots: 10,
-    totalSlots: 10,
-  },
-  {
-    id: 2,
-    name: "HALL 2",
-    capacity: 18,
-    features: ["BY OUR OWN"],
-    location: "Building TECH PARK 2",
-    availableSlots: 10,
-    totalSlots: 10,
-  },
-];
+import { useStorage } from "@/contexts/StorageContext";
 
 interface TableSummaryProps {
   className?: string;
 }
 
 const TableSummary = ({ className }: TableSummaryProps) => {
+  const { tables } = useStorage();
+  
   return (
     <div className={className}>
       <div className="mb-4">
@@ -40,7 +21,7 @@ const TableSummary = ({ className }: TableSummaryProps) => {
       
       <div className="space-y-3">
         {tables.map((table) => (
-          <Card key={table.id} className="overflow-hidden">
+          <Card key={table.id || table._id} className="overflow-hidden">
             <div className={cn(
               "h-1",
               table.availableSlots === 0 ? "bg-red-500" : 

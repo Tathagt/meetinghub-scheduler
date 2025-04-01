@@ -1,3 +1,4 @@
+
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -9,30 +10,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-
-// Mock data for tables
-const tables = [
-  {
-    id: 1,
-    name: "HALL 1",
-    capacity: 17,
-    features: ["BY OUR OWN"],
-    location: "Building TECH PARK 2",
-    availableSlots: 10,
-    totalSlots: 10,
-  },
-  {
-    id: 2,
-    name: "HALL 2",
-    capacity: 18,
-    features: ["BY OUR OWN"],
-    location: "Building TECH PARK 2",
-    availableSlots: 10,
-    totalSlots: 10,
-  },
-];
+import { useStorage } from "@/contexts/StorageContext";
 
 const TablesPage = () => {
+  const { tables } = useStorage();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [viewType, setViewType] = useState("all");
 
@@ -89,7 +70,7 @@ const TablesPage = () => {
         <TabsContent value="all" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTables.map((table) => (
-              <Card key={table.id} className="overflow-hidden">
+              <Card key={table._id || table.id} className="overflow-hidden">
                 <div className={cn(
                   "h-2",
                   table.availableSlots === 0 ? "bg-red-500" : 
@@ -138,7 +119,7 @@ const TablesPage = () => {
                       </div>
                     </div>
                     <Button variant="outline" className="w-full" asChild>
-                      <Link to={`/tables/${table.id}`}>View Details</Link>
+                      <Link to={`/tables/${table._id || table.id}`}>View Details</Link>
                     </Button>
                   </div>
                 </CardContent>
